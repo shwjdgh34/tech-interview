@@ -4,64 +4,6 @@
 <참고 사이트>
 <https://www.fullstack.cafe/blog/front-end-developer-interview-questions>
 
-## network
-
-### TCP 3/4-way handshake에 대해서 설명하시오
-
-![TCP/IP](/tech-interview-questions/image/tcpip.png)
-
-tcp는 transport layer의 연결-지향 프로토콜로써, 근원지와 목적지 사이에 가상 경로를 연결합니다. 가상경로를 구축한 이점으로 전송된 데이터가 훼손또는 손실될 경우 재전송을 해주고, 확인 응답 프로세스를 가능하게 해줍니다. TCP의 연결에는 connection setup, data transfer, connection termination의 3단계가 있습니다. TCP 3way handshaking은 connection setup의 과정이고, TCP 4way handshaking은 connection termination의 과정입니다.
-
-SYN세그먼트를 보내고 ACK의 응답을 받으면 연결이 되는데, connection setup 단계에서는 연속적인 세번의 통신을 통해 양방향 연결이 성사 됩니다.
-> client process에서 Active open을 하게 되면 client TCP에서 SYN세그먼트를 보냅니다. server process에서 Passive open을 한 상태라면 client에서 보내온 SYN세그먼트를 받은 후 SYN+ACK세그먼트를 client TCP에게 보냅니다. client가 SYN+ACK 세그먼트를 받으면 마지막으로 ACK 세그먼트를 server TCP에 보내고, 해당 ACK세그먼트를 server가 받으면 양방향 연결이 성사됩니다.
-
-connection termination 단계에서는 양방향 2개 연결이 독립적으로 닫게 됩니다. 이 때문에 4way의 단계를 밟게 됩니다.
-> 다양한 상황이 있을 수 있는데, 한 방향이 연결이 종료 되어도 다른 방향은 계속 오픈상태일 수 있습니다.</br>
-> client process에서 active close를 하면 client TCP에서 FIN 세그먼트를 보냅니다. server는 FIN세그먼트를 받았다는 응답에 대한 ACK를 client로 보냅니다. 이때, server TCP는 server process에게 EOF를 보내지만, process는 바로 close되지 않을 수 있습니다. server process로부터 passive close를 받으면 그제서야 server TCP에서 FIN세그먼트를 client TCP에게 보내게 됩니다. server TCP로부터 FIN세그먼트를 받은 client TCP는 ACK응답을 server TCP로 보내고, 이를 받게 되면 연결이 종료됩니다.
-
-### TCP와 UDP에 대해서 비교 설명하시오
-
-TCP와 UDP는 둘다 Transport layer protocol입니다. 해당 프로토콜은 process to process 통신을 가능하게 해줍니다.  
->p2p통신이란 IP주소와 Port번호의 결합인 socket address를 이용하여 통신하는 것을 말합니다.
-
-UDP는 흐름제어나 오류제어와 같은 신뢰성을 제공하지 않는 비연결 프로토콜입니다. 단순성과 효율성 때문에 실시간 스트리밍과 같은 곳에 사용됩니다.
-TCP는 이와 반대로 흐름제어와 오류제어를 제공하는 신뢰성 연결 지향 프로토콜입니다. TCP는 송수신 process 2개가 마치 연결된 것처럼 바이트의 stream으로 데이터를 송수신 합니다.
-
-### Http/Https 의 차이점에 대해 설명하시오
-
-> TLS가 어떤방식으로 보안을 하는지 더 찾아보자
-
-SSL(security socket layer)와 TLS(Transport layer security)라는 전송층 보안이 TCP를 이용하는 응용층(HTTP)를 위해 제공됩니다. TCP를 사용하는 HTTP 응용층 프로그램은 SSL패킷(HTTPS)으로 데이터를 캡슐화 할 수 있습니다.
-SSL(security socket layer)와 TLS(Transport layer security)라는 전송층 보안이 TCP를 이용하는 응용층( ex) http )을 위해 제공된다. TCP를 사용하는 HTTP 응용층 프로그램은 `https://`URL를 통해 SSL패킷(HTTPS)로 데이터를 캡슐화 할 수 있다.
-
-### Osi 7layer와 tcp/ip에 대해 비교하여 설명하시오
-
-컴퓨터나 원거리 통신 장비 사이의 원활하고 효과적인 통신을 위해 규정한 통신 규칙을 protocol이라고 합니다. protocol에는 가장 많이 쓰이고 있는 tcp/ip(5 layer)와 상용화에 실패한 OSI 7 layer 모델이 있습니다. tcp/ip는 5layer로, physical, data-link, network, transport, application layer가 있고, osi 에는 session과 presentation layer가 추가로 있습니다. OSI 는 ISO에서 만든 모델인데, TCP/IP가 이미 완전히 자리잡고 있었고,  protocol 교체에는 많은 돈과 시간이 들지만 osi가 tcp/ip에 비해 큰 이점이 없었기 때문에 상용화 되지 못했습니다.
-
-### client에서 SYN만 보내고 ACK를 보내지 않는걸 반복한다면 어떤 현상이 일어나며 어떻게 대응할지 설명해주세요
-
-해당 상황을 SYN flooding attack이라고 합니다. 수많은 SYN을 받은 TCP서버는 SYN+ACK응답을 위조된 클라이언트에게 송신하여 많은 자원을 할당하게 됩니다. 서버는 결국 자원이 모두 고갈되고 무너질 수 있습니다. 이에 대처하기 위해 시간당 연결 요청수를 제한하고 원치않은 근원지 주소로부터 오는 데이터그램은 받지 않을 수 있습니다. 또한 쿠키를 사용하여 전체 연결설정시까지 자원할당을 지연하는 방법을 사용합니다.
-
-### SSL or TLS 작동원리와 handshake는
-
-> https 통신 방식에 대해 더 알아보기
-
-SSL과 TLS에 4단계의 handshake protocol이 존재합니다.
-
-- 보안 기능 설정 : 클라이언트와 서버는 서로의 보안능력을(SSL의 버전, 암호화 알고리즘등) 알리고, 양쪽 모두에 편리한 것을 선택합니다.
-- 서버인증과 키교환: 클라이언트를 위해 서버가 인증되고 서버의 공개키를 알 수 있게 됩니다.
-- 클라이언트 인증과 키교환 : 서버를 위해 클라이언트가 인증되고 클라이언트의 공개키를 알 수 있게 됩니다.
-- 완료 및 종료 : 종료를 위해 메세지를 보냅니다.
-
-### reference
-
-1. [HTTP-protocol](https://joshua1988.github.io/web-development/http-part1/)
-
-Socket에서 bind, listen, accept 각각 어떤 기능을 하는지 설명하시오.(TCP/IP책보기)
-동기I/O와 비동기 I/O의 차이에 대해 소켓 레벨에서 설명하시오
-socket에서 connection timeout과 read timeout을 각각 설명해주세요
-TCP로 한국에서 반대편(브라질?)에 있는 서버에 연결하기 까지 시간은?
-
 ## javascript
 
 ### js-reference
@@ -315,6 +257,64 @@ microservice
 크로스 브라우징
 
 ### [fetch vs axios](https://hoorooroob.tistory.com/entry/React-React-Naive-TIPS-axios-%EC%99%80-fetch-%EC%96%B4%EB%96%A4-%EA%B2%83%EC%9D%84-%EC%82%AC%EC%9A%A9%ED%95%A0%EA%B9%8C)
+
+## network
+
+### TCP 3/4-way handshake에 대해서 설명하시오
+
+![TCP/IP](/tech-interview-questions/image/tcpip.png)
+
+tcp는 transport layer의 연결-지향 프로토콜로써, 근원지와 목적지 사이에 가상 경로를 연결합니다. 가상경로를 구축한 이점으로 전송된 데이터가 훼손또는 손실될 경우 재전송을 해주고, 확인 응답 프로세스를 가능하게 해줍니다. TCP의 연결에는 connection setup, data transfer, connection termination의 3단계가 있습니다. TCP 3way handshaking은 connection setup의 과정이고, TCP 4way handshaking은 connection termination의 과정입니다.
+
+SYN세그먼트를 보내고 ACK의 응답을 받으면 연결이 되는데, connection setup 단계에서는 연속적인 세번의 통신을 통해 양방향 연결이 성사 됩니다.
+> client process에서 Active open을 하게 되면 client TCP에서 SYN세그먼트를 보냅니다. server process에서 Passive open을 한 상태라면 client에서 보내온 SYN세그먼트를 받은 후 SYN+ACK세그먼트를 client TCP에게 보냅니다. client가 SYN+ACK 세그먼트를 받으면 마지막으로 ACK 세그먼트를 server TCP에 보내고, 해당 ACK세그먼트를 server가 받으면 양방향 연결이 성사됩니다.
+
+connection termination 단계에서는 양방향 2개 연결이 독립적으로 닫게 됩니다. 이 때문에 4way의 단계를 밟게 됩니다.
+> 다양한 상황이 있을 수 있는데, 한 방향이 연결이 종료 되어도 다른 방향은 계속 오픈상태일 수 있습니다.</br>
+> client process에서 active close를 하면 client TCP에서 FIN 세그먼트를 보냅니다. server는 FIN세그먼트를 받았다는 응답에 대한 ACK를 client로 보냅니다. 이때, server TCP는 server process에게 EOF를 보내지만, process는 바로 close되지 않을 수 있습니다. server process로부터 passive close를 받으면 그제서야 server TCP에서 FIN세그먼트를 client TCP에게 보내게 됩니다. server TCP로부터 FIN세그먼트를 받은 client TCP는 ACK응답을 server TCP로 보내고, 이를 받게 되면 연결이 종료됩니다.
+
+### TCP와 UDP에 대해서 비교 설명하시오
+
+TCP와 UDP는 둘다 Transport layer protocol입니다. 해당 프로토콜은 process to process 통신을 가능하게 해줍니다.  
+>p2p통신이란 IP주소와 Port번호의 결합인 socket address를 이용하여 통신하는 것을 말합니다.
+
+UDP는 흐름제어나 오류제어와 같은 신뢰성을 제공하지 않는 비연결 프로토콜입니다. 단순성과 효율성 때문에 실시간 스트리밍과 같은 곳에 사용됩니다.
+TCP는 이와 반대로 흐름제어와 오류제어를 제공하는 신뢰성 연결 지향 프로토콜입니다. TCP는 송수신 process 2개가 마치 연결된 것처럼 바이트의 stream으로 데이터를 송수신 합니다.
+
+### Http/Https 의 차이점에 대해 설명하시오
+
+> TLS가 어떤방식으로 보안을 하는지 더 찾아보자
+
+SSL(security socket layer)와 TLS(Transport layer security)라는 전송층 보안이 TCP를 이용하는 응용층(HTTP)를 위해 제공됩니다. TCP를 사용하는 HTTP 응용층 프로그램은 SSL패킷(HTTPS)으로 데이터를 캡슐화 할 수 있습니다.
+SSL(security socket layer)와 TLS(Transport layer security)라는 전송층 보안이 TCP를 이용하는 응용층( ex) http )을 위해 제공된다. TCP를 사용하는 HTTP 응용층 프로그램은 `https://`URL를 통해 SSL패킷(HTTPS)로 데이터를 캡슐화 할 수 있다.
+
+### Osi 7layer와 tcp/ip에 대해 비교하여 설명하시오
+
+컴퓨터나 원거리 통신 장비 사이의 원활하고 효과적인 통신을 위해 규정한 통신 규칙을 protocol이라고 합니다. protocol에는 가장 많이 쓰이고 있는 tcp/ip(5 layer)와 상용화에 실패한 OSI 7 layer 모델이 있습니다. tcp/ip는 5layer로, physical, data-link, network, transport, application layer가 있고, osi 에는 session과 presentation layer가 추가로 있습니다. OSI 는 ISO에서 만든 모델인데, TCP/IP가 이미 완전히 자리잡고 있었고,  protocol 교체에는 많은 돈과 시간이 들지만 osi가 tcp/ip에 비해 큰 이점이 없었기 때문에 상용화 되지 못했습니다.
+
+### client에서 SYN만 보내고 ACK를 보내지 않는걸 반복한다면 어떤 현상이 일어나며 어떻게 대응할지 설명해주세요
+
+해당 상황을 SYN flooding attack이라고 합니다. 수많은 SYN을 받은 TCP서버는 SYN+ACK응답을 위조된 클라이언트에게 송신하여 많은 자원을 할당하게 됩니다. 서버는 결국 자원이 모두 고갈되고 무너질 수 있습니다. 이에 대처하기 위해 시간당 연결 요청수를 제한하고 원치않은 근원지 주소로부터 오는 데이터그램은 받지 않을 수 있습니다. 또한 쿠키를 사용하여 전체 연결설정시까지 자원할당을 지연하는 방법을 사용합니다.
+
+### SSL or TLS 작동원리와 handshake는
+
+> https 통신 방식에 대해 더 알아보기
+
+SSL과 TLS에 4단계의 handshake protocol이 존재합니다.
+
+- 보안 기능 설정 : 클라이언트와 서버는 서로의 보안능력을(SSL의 버전, 암호화 알고리즘등) 알리고, 양쪽 모두에 편리한 것을 선택합니다.
+- 서버인증과 키교환: 클라이언트를 위해 서버가 인증되고 서버의 공개키를 알 수 있게 됩니다.
+- 클라이언트 인증과 키교환 : 서버를 위해 클라이언트가 인증되고 클라이언트의 공개키를 알 수 있게 됩니다.
+- 완료 및 종료 : 종료를 위해 메세지를 보냅니다.
+
+### reference
+
+1. [HTTP-protocol](https://joshua1988.github.io/web-development/http-part1/)
+
+Socket에서 bind, listen, accept 각각 어떤 기능을 하는지 설명하시오.(TCP/IP책보기)
+동기I/O와 비동기 I/O의 차이에 대해 소켓 레벨에서 설명하시오
+socket에서 connection timeout과 read timeout을 각각 설명해주세요
+TCP로 한국에서 반대편(브라질?)에 있는 서버에 연결하기 까지 시간은?
 
 ## Operating System
 
