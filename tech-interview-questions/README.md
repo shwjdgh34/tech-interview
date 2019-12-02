@@ -16,8 +16,8 @@
 > [closure,hoist,lexical](https://meetup.toast.com/posts/86)
 
 ![closure-environment](/tech-interview-questions/image/closure-environment.png)
-클로저(closure)는 내부함수가 외부함수의 맥락(context, lexical environment)에 접근할 수 있는 것을 가르킵니다. 이때, 외부함수의 실행이 끝나서 외부함수가 소멸된 이후에도 내부함수가 외부함수의 변수에 접근할 있습니다. 클로저는 함수가 선언되는 시점에 생성이 되어 그 함수의 렉시컬 환경을 폐쇄(closure)하여 실행될 때 이용합니다. 클로저는 private 변수로 활용할 수 있다.
-다만 조심해야할 부분이 있는데, 가비지컬렉션 대상이 되어야할 객체들이 메모리상에 남아 있게 되므로, 클로저를 남발하면 오버플로우가 발생할수도 있습니다.
+클로저(closure)는 내부함수가 외부함수의 맥락(context, lexical environment)에 접근할 수 있는 것을 가르킵니다. 클로저는 함수가 선언되는 시점에 생성이 되어 그 함수의 렉시컬 환경을 폐쇄(closure)하여 내부함수를 실행될 때 외부함수의 변수에 접근할 수 있도록 합니다. 클로저는 private 변수로 활용할 수 있습니다.
+다만 조심해야할 부분이 있는데, 가비지컬렉션 대상이 아니므로 메모리상에 남아 있됩니다. 이로 인해 오버플로우가 발생할수도 있습니다.
 
 ```javascript
 let a = 4;
