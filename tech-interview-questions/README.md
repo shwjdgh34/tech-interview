@@ -1,4 +1,3 @@
-
 # tech-interview-questions
 
 <참고 사이트>
@@ -8,13 +7,99 @@
 
 ### js-reference
 
-1. [reference1](https://github.com/JaeYeopHan/Interview_Question_for_Beginner/tree/master/JavaScript)
+1. [tech-interview-for-beginner/javascript](https://github.com/JaeYeopHan/Interview_Question_for_Beginner/tree/master/JavaScript)
 
-2. [reference2](https://github.com/JaeYeopHan/Interview_Question_for_Beginner/tree/master/FrontEnd)
+2. [tech-interview-for-beginner/frontend](https://github.com/JaeYeopHan/Interview_Question_for_Beginner/tree/master/FrontEnd)
 
 ### closure
 
+> [closure,hoist,lexical](https://meetup.toast.com/posts/86)
+
+![closure-environment](/tech-interview-questions/image/closure-environment.png)
+클로저(closure)는 내부함수가 외부함수의 맥락(context, lexical environment)에 접근할 수 있는 것을 가르킵니다. 이때, 외부함수의 실행이 끝나서 외부함수가 소멸된 이후에도 내부함수가 외부함수의 변수에 접근할 있습니다. 클로저는 함수 생성되는 시점에 생성이 되어 그 함수의 렉시컬 환경을 폐쇄(closure)하여 실행될 때 이용합니다. 클로저는 private 변수로 활용할 수 있다.
+다만 조심해야할 부분이 있는데, 가비지컬렉션 대상이 되어야할 객체들이 메모리상에 남아 있게 되므로, 클로저를 남발하면 오버플로우가 발생할수도 있습니다.
+
+```javascript
+let a = 4;
+function parent() {
+    let a = 10;
+
+    function double() {
+        a = a + a;
+        console.log(a);
+    };
+
+    function square() {
+        a = a * a;
+        console.log(a);
+    }
+    return { double, square };
+}
+const { double, square } = parent();
+double();
+square();
+double();
+```
+
+> 20</br>
+> 400</br>
+> 800</br>
+>double과 square는 outer environment 참조로 parent의 environment를 저장하였다. global에서 double과 squre를 호출했다.
+double과 square은 자신의 스코프에서 a를 찾는데, a가 없다. 자신의 outer environment 참조를 찾아간다.
+outer environment인 parent의 스코프를 뒤진다. a를 찾았다. 값은 10->20->400이다.(변화된 값을 기억한다. 이게 참 신기하네)
+때문에 20->400->800을 출력한다. 마치 javascript에는 없는 private 변수를 선언하는 듯한 느낌이다.</br>
+>추가로, parent의 렉시컬환경 인스턴스는 parent();수행이 끝난 이후 GC가 회수해야 하는데 사실은 그렇지 않다. 앞에 설명했듯 double과 square는 여전히 바깥 렉시컬 환경인 parent의 렉시컬 환경을 계속 참조하고 있기에 계속 남아있다.
+
+```javascript
+function movie(title) {
+    return {
+        get_title: () => {
+            return title;
+        },
+        set_title: (new_title) => {
+            title = new_title;
+        }
+    }
+}
+
+const nono = movie("nonomovie");
+const bobo = movie("bobomovie")
+console.log(bobo.get_title());
+console.log(nono.get_title());
+nono.set_title("newmovie");
+console.log(nono.get_title());
+console.log(bobo.get_title());
+}
+```
+
+>bobomovie</br>
+nonomovie</br>
+newmovie</br>
+bobomovie</br>
+> private variable로 활용</br>
+
+### overriding vs overloading
+
+오버로딩(Overloading) : 두 메서드가 같은 이름을 갖고 있으나 인자의 수나 자료형이 다른 경우를 말한다. => 자바스크립트에서는 지원해주지 않지만 arguments property를 이용하여 유사하게 구현할 수 있습니다.
+
+오버라이딩(Overriding) : 상위 클래스가 가지고 있는 메소드를 하위 클래스가 재정의 해서 사용한다.
+> 상속이 일어나야 오버라이딩을 진행할 수 있는 것 같다.
+
+### oop(object oriented programming)란 무엇인가
+
+객체지향 프로그래밍 이란 캡슐화, 다형성, 상속 을 이용하여 코드 재사용을 증가시키고, 유지보수를 감소시키는 장점을 얻기 위해서 객체들을 연결 시켜 프로그래밍 하는 것 입니다.
+> 다형성의 관용적인 개념은 같은모양의 코드가 다양한 행위를 하는 것을 지칭합니다. => overriding과 overloading이 이에 해당합니다.
+
+### 왜 react를 쓰는건가요
+
+업데이트하는 항목에 따라 어떤 부분을 찾아서 변경할지 규칙을 정하는 작업은 간단하지만, 애플리케이션 규모가 크면 상당히 복잡해지고 제대로 관리하지 않으면 성능이 떨어질 수 있습니다. 이를 해결하기 위해 어떤 데이터가 변할 때마다 어떤 변화를 줄지 고민하는 것이 아니라 그냥 기존 뷰를 날려 버리고 처음부터 새로 렌더링을 합니다. 하지만 웹브라우저에서 이 방식대로 하면 CPU점유율도 많이 잡아먹고 메모리도 많이 사용할 것입니다. 그래서 고안된 라이브러리가 오직 View만 신경쓰는 react입니다. react라이브러리는 데이터를 업데이트하면 전체 UI를 Virtual DOM에 리렌더링 합니다. 그 후 이전 Virtual DOM에 있던 내용과 현재 내용을 비교합니다. 마지막으로 바뀐 부분만 실제 DOM에 적용합니다.
+
+리액트는 지속적으로 데이터가 변화하는 대규모 애플리케이션을 구축하기 위해 고안된 라이브러리 입니다. 즉 업데이트 처리의 간결성이 장점입니다.
+
+### inner 함수란 무엇인가
+
 함수 내부에 정의된 함수를 inner function이라고 합니다. inner function은 클로저를 생성하거나 부모함수코드에서 외부에서의 접근을 막고 독립적인 헬퍼 함수를 구현하는 용도 등으로 사용 됩니다. 스코프 체이닝 때문에 내부함수는 자신을 둘러싼 외부 함수의 변수에 접근 가능합니다. 또한 내부함수는 일반적으로 자신이 정의된 부모 함수 내부에서만 호출이 가능합니다.
+하지만 부모 함수에서 return 값으로 inner 함수를 반환한다고 하면 외부에서 inner 함수를 실행할 수 있는데, 이렇게 이미 실행이 끝난 부모 함수 스코프의 변수를 참조하는 inner()와 같은 함수를 클로저라고 합니다.
 
 ```javascript
 let c = 500;
@@ -24,70 +109,56 @@ function parent() {
 
     function child() {
         let b = 300;
-        console.log(a, b);
+        console.log(a, b, c);
     }
-    child();    // 100, 300 => 외부함수의 변수에 접근하였다.
+    child();    // 100, 300, 500 => 외부함수의 변수에 접근하였다.
     console.log(a, b, c );  // 100, 200, 500 => 스코프 체이닝 때문에 외부에서 선언된 변수나 함수에 접근이 가능하다.
 };
 parent();
-child();//  child is not defined => 부모함수 외부에서 내부함수를 호출하는 것은 불가능하다.
+child();//  ReferenceError: child is not defined => 부모함수 외부에서 내부함수를 호출하는 것은 불가능하다.
 ```
-
-하지만 부모 함수에서 return 값으로 inner 함수를 반환한다고 하면 외부에서 inner 함수를 실행할 수 있는데, 이렇게 이미 실행이 끝난 부모 함수 스코프의 변수를 참조하는 inner()와 같은 함수를 클로저라고 합니다.
-
-### overriding vs overloading
-
-### 왜 react를 쓰는건가요
-
-업데이트하는 항목에 따라 어떤 부분을 찾아서 변경할지 규칙을 정하는 작업은 간단하지만, 애플리케이션 규모가 크면 상당히 복잡해지고 제대로 관리하지 않으면 성능이 떨어질 수 있습니다. 이를 해결하기 위해 어떤 데이터가 변할 때마다 어떤 변화를 줄지 고민하는 것이 아니라 그냥 기존 뷰를 날려 버리고 처음부터 새로 렌더링을 합니다. 하지만 웹브라우저에서 이 방식대로 하면 CPU점유율도 많이 잡아먹고 메모리도 많이 사용할 것입니다. 그래서 고안된 라이브러리가 오직 View만 신경쓰는 react입니다. react라이브러리는 데이터를 업데이트하면 전체 UI를 Virtual DOM에 리렌더링 합니다. 그 후 이전 Virtual DOM에 있던 내용과 현재 내용을 비교합니다. 마지막으로 바뀐 부분만 실제 DOM에 적용합니다.
-
-리액트는 지속적으로 데이터가 변화하는 대규모 애플리케이션을 구축하기 위해 고안된 라이브러리 입니다. 즉 업데이트 처리의 간결성이 장점입니다.
-
-### react life cycle
-
-### babel에 대해서 바벨 언제 쓰는건지 하는 역할이 먼지
-
-### webpack에 대해서
 
 ### [nodejs가 무엇인지 설명하시오, javascript에 대해서](https://medium.com/@sunki.baek)
 
 > [인사이드 자바스크립트책](http://book.interpark.com/product/BookDisplay.do?_method=detail&sc.prdNo=213715769&gclid=EAIaIQobChMIvvH0lPqO5gIVQ7aWCh3cRA-NEAQYASABEgJacvD_BwE),
-> [가비지 콜레션](https://engineering.huiseoul.com/,%EC%9E%90%EB%B0%94%EC%8A%A4%ED%81%AC%EB%A6%BD%ED%8A%B8%EB%8A%94-%EC%96%B4%EB%96%BB%EA%B2%8C-%EC%9E%91%EB%8F%99%ED%95%98%EB%8A%94%EA%B0%80-%EB%A9%94%EB%AA%A8%EB%A6%AC-%EA%B4%80%EB%A6%AC-4%EA%B0%80%EC%A7%80-%ED%9D%94%ED%95%9C-%EB%A9%94%EB%AA%A8%EB%A6%AC-%EB%88%84%EC%88%98-%EB%8C%80%EC%B2%98%EB%B2%95-5b0d217d788d),
-> non-Blocking,
-> 콜백 큐(callback queue),
-> single thread,
 > <https://programmingsummaries.tistory.com/328>,
 > <https://asfirstalways.tistory.com/43>,
 > <https://engineering.huiseoul.com/%EC%9E%90%EB%B0%94%EC%8A%A4%ED%81%AC%EB%A6%BD%ED%8A%B8%EB%8A%94-%EC%96%B4%EB%96%BB%EA%B2%8C-%EC%9E%91%EB%8F%99%ED%95%98%EB%8A%94%EA%B0%80-%EC%97%94%EC%A7%84-%EB%9F%B0%ED%83%80%EC%9E%84-%EC%BD%9C%EC%8A%A4%ED%83%9D-%EA%B0%9C%EA%B4%80-ea47917c8442>,
+>[빠리의 택시 운전사](https://geonlee.tistory.com/92 )
 
+![V8](/tech-interview-questions/image/V8.jpeg)
+![nodejs](/tech-interview-questions/image/nodejs.jpg)
 Node.js는 자바스크립트 개발자에게 브라우저 기반의 프로그래밍을 넘어서버 기반 프로그래밍을 가능하게 V8엔진으로 빌드된 런타임입니다. Nodejs의 특징으로는 다음과 같습니다.
 
 - 비동기 I/O 처리(non-block)
-- 단일 쓰레드: 기존의 서버는 동기I/O 멀티쓰레드방식이였는데, 처리량이 많아질수록 쓰레드의 수를 증가 시켜야 됐고, 메모리사용량이 많아지게 됐습니다. 하지만 nodejs는 비동기I/O 싱글쓰레드방식으로
+- 단일 쓰레드
+
+> 기존의 서버는 동기I/O 멀티쓰레드방식이였는데, 처리량이 많아질수록 쓰레드의 수를 증가 시켜야 됐고, 메모리사용량이 많아지게 됐습니다. 하지만 nodejs는 비동기I/O 싱글쓰레드방식으로
 one thread == one Call Stack == one Thing at a time
+
 - 뛰어난 확장성(이벤트 루프?)
 
-다음과 같은 경우에 Node.js를 사용할 경우 좋은 효율성을 발휘할 수 있습니다.
-알림이나 실시간 대화같이 같이 데이터의 실시간 처리가 필요한 애플리케이션
-사용자의 입력과 출력이 잦은 애플리케이션
-데이터 스트리밍 애플리케이션
-JSON API기반의 애플리케이션
-단일 페이지 기반의 애플리케이션
+Node.js를 사용할 경우 좋은 효율성을 발휘할 수 있는 경우는 다음과 같습니다.
 
->[빠리의 택시 운전사](https://geonlee.tistory.com/92 )
+- 알림이나 실시간 대화같이 같이 데이터의 실시간 처리가 필요한 애플리케이션
+- 사용자의 입력과 출력이 잦은 애플리케이션
+- SPA
 
 ### 이벤트 루프란
 
 > [참고 동영상](https://vimeo.com/96425312)
 > [참고 사이트](https://meetup.toast.com/posts/89)
 
+![eventloop](/tech-interview-questions/image/eventloop.jpg)
 단일 스레드' 기반의 언어라는 말은 '자바스크립트 엔진이 단일 호출 스택을 사용한다'는 관점에서만 사실이다. 실제 자바스크립트가 구동되는 환경(브라우저, Node.js등)에서는 주로 여러 개의 스레드가 사용되며, 이러한 구동 환경이 단일 호출 스택을 사용하는 자바 스크립트 엔진과 상호 연동하기 위해 사용하는 장치가 바로 '이벤트 루프'인 것이다.
 
-### 절차형 프로그래밍과 함수형 프로그래밍의 장단점/ 특징 비교
+### Garbage Collector에 대해서 설명하시오
+
+> [가비지 콜레션](https://engineering.huiseoul.com/,%EC%9E%90%EB%B0%94%EC%8A%A4%ED%81%AC%EB%A6%BD%ED%8A%B8%EB%8A%94-%EC%96%B4%EB%96%BB%EA%B2%8C-%EC%9E%91%EB%8F%99%ED%95%98%EB%8A%94%EA%B0%80-%EB%A9%94%EB%AA%A8%EB%A6%AC-%EA%B4%80%EB%A6%AC-4%EA%B0%80%EC%A7%80-%ED%9D%94%ED%95%9C-%EB%A9%94%EB%AA%A8%EB%A6%AC-%EB%88%84%EC%88%98-%EB%8C%80%EC%B2%98%EB%B2%95-5b0d217d788d),
 
 ### 함수 hoisting이란
 
-hoist 란 끌어올린다는 뜻입니다. 자바스크립트에서 변수나 함수의 선언의 유효범위는 hoist(끌어올려짐)되어서 코드의 맨 처음부터 시작하게 됩니다. 이경우 함수를 사용하기 전에 반드시 선언해야 한다는 규칙을 무시하게 되어 코드의 구조를 엉성하게 만들 수 있습니다. 따라서 함수선언문보다 함서표현식만을 사용할 것을 권고한다.
+hoist 란 끌어올린다는 뜻입니다. 자바스크립트에서 변수나 함수의 선언의 유효범위는 hoist(끌어올려짐)되어서 코드의 맨 처음부터 시작하게 됩니다. 이경우 함수를 사용하기 전에 반드시 선언해야 한다는 규칙을 무시하게 되어 코드의 구조를 엉성하게 만들 수 있습니다. 따라서 함수선언문보다 함수표현식만을 사용할 것을 권고합니다.
 
 ``` javascript
 add(3,5); //8 ------- ① 호출하는 시점에 add란 함수가 선언이 안되었는데 호출한다. 정상동작을 한다.
@@ -119,24 +190,27 @@ add(3,5); //8
 
 javascript의 function은 first-class citizen이기 때문에 함수형 프로그래밍이 가능하게 됩니다.
 
-### this binding, call, apply에 대해서 설명하시오
-
 ### node.js 또는 비동기를 해봤다면, 동기 비동기의 차이에 대해 설명하시오. Sync에서 발생될 수 있는 문제, Async에서 발생 될 수 있는 문제
 
 > [Sync Async](https://meetup.toast.com/posts/89)
 
-CPU가 쉬게 만드는 작업들을 blocking이라고 한고 생각하면 된다. 대표적으로 I/O작업들이 있는데, sync는 blocking작업이 끝날때까지 기다리는 거고, async는 비동기적으로 I/O를 처리하고 callback함수를 받는다. non-block I/O가 끝나면 callback함수가 실행된다.
+CPU가 쉬게 만드는 작업들을 blocking이라고 한고 생각하면 됩니다. 대표적으로 메모리접근이나 fetch등의 작업이 있는데, sync는 blocking작업이 끝날때까지 기다리는 거고, async는 비동기적으로 요청을 하고 다른 코드를 실행하다가 요청했던 작업이 완료되면 callback함수를 실행합니다.
 
 ### arrow function
 
 > [arrow-function](https://nesoy.github.io/articles/2019-04/Javascript-Arrow-function)
 
-arrow function은 dynamic scope가 아닌 lexical scope의 this를 가지고 있습니다. 또한 this뿐만 아니라 arguments, super or new.target도 Binding하지 않습니다. 즉 function의 내부함수를 arrow function으로 작셩하면 this가 전역객체에 바인딩되지 않고, 자신을 감싸는 함수의 this에 바인딩 되는 것을 확인 할 수 있습니다. arrow함수가 아닌 inner 함수는 전역 객체를 this로 바인딩한다.
-
-### async/await vs promise
+arrow function은 dynamic scope가 아닌 lexical scope의 this를 가지고 있습니다. 즉 function의 내부함수를 arrow function으로 작셩하면 this가 전역객체에 바인딩되지 않고, 자신을 감싸는 함수의 this에 바인딩 되는 것을 확인 할 수 있습니다. arrow함수가 아닌 inner 함수는 전역 객체를 this로 바인딩합니다.
 
 ### others
 
+- async/await vs promise
+- 함수레벨scope vs 블록레벨 scope
+- react life cycle
+- babel에 대해서 바벨 언제 쓰는건지 하는 역할이 먼지
+- webpack에 대해서
+- 절차형 프로그래밍과 함수형 프로그래밍의 장단점/ 특징 비교
+- this binding, call, apply에 대해서 설명하시오
 - 다중상속을 사용하지 않는 이유
 - React hooks
 - react Mobx
@@ -160,10 +234,6 @@ HTTP request는 위와 같이 method, path, protocol version 그리고 필요에
 
 대표적으로 GET과 POST에 대해서 설명해보면 리소스를 가져오기위해 GET을 사용하고 HTML 폼의 데이터를 전송하기 위해 POST를 사용합니다. 특히 POST를 사용할 때는 body에 데이터를 실어서 서버로 보내게 됩니다.
 > body에 데이터를 실어 보내는 방법으로 formdata 와 json이 있는 것 같다.
-
-### HTTP Header(cache-control Etag, keepalive, cros, lastmodified)에 대해 설명해 보시오. 특히 cache 장점과 주의점을 말해보
-
-1. HTTP는 1번의 요청에 대해 1번의 응답을 하게 설계 되었습니다. 이런경우 여러 자원을 요청할 경우 여러 번 연결을 끊었다 붙였다 해야해서 비효율적입니다. keep-alive는 지정된 시간 동안 연결을 끊지 않고 연결된 상태를 유지할 수 있도록 해줍니다. keep-alive의 time out 내 클라이언트가 재 요청하면 새로운 연결이 아닌 기존 연결된 것을 이용하게 됩니다.
 
 ### RESTful API가 무엇인지 설명하시오
 
@@ -220,16 +290,6 @@ SPA는 Spingle Page Application으로 모던 웹의 패러다임입니다. 전�
 ![URI2](/tech-interview-questions/image/URI2.png)
 URI(Uniform Resource Identifier) 는 인터넷 상의 자원을 식별하는 문자열로 생각할 수 있고, URL(Uniform Resource Locator)는 인터넷 상의 자원 위치를 나타냅니다. 즉 URI는 URL을 포함하는 관계인데, URL에 자원을 식별하기 위한 parameter가 추가된게 URI로 생각할 수 있다.
 
-### CORS
-
-### 세션, 쿠키, 캐시
-
-### graphql과 restAPI의 차이점
-
-### proxy에 대해서
-
-### redirect와 reverse proxy의 차이
-
 ### Http status code
 
 - 1xx : 전송 프로토콜 수준의 정보 교환\
@@ -242,19 +302,27 @@ URI(Uniform Resource Identifier) 는 인터넷 상의 자원을 식별하는 문
     - 404 Not Founded : 클라이언트가 요청한 리소스가 서버에 없음
 - 5xx : 서버쪽 오류로 인한 상태코드
 
-### Form-data vs JSON 차이
+### others
 
-Authentication vs Authorization 차이점
-암호화는 어떻게 했는지. 왜 그렇게 했는지
-JWT에 대해서 설명해 보시오
-tdd,, testcode 작성, mocha
-aws EC2에 대해서 설명하시오
-nginx에 대해서 설명하시오
-IaaS, SaaS, PaaS
-heroku vs AWS
-microservice
-브라우저의 동작원리
-크로스 브라우징
+- Form-data vs JSON 차이
+- CORS
+- 세션, 쿠키, 캐시
+- graphql과 restAPI의 차이점
+- proxy에 대해서
+- redirect와 reverse proxy의 차이
+- Authentication vs Authorization 차이점
+- 암호화는 어떻게 했는지. 왜 그렇게 했는지
+- JWT에 대해서 설명해 보시오
+- tdd,, testcode 작성, mocha
+- aws EC2에 대해서 설명하시오
+- nginx에 대해서 설명하시오
+- IaaS, SaaS, PaaS
+- heroku vs AWS
+- microservice
+- 크로스 브라우징
+- HTTP Header(cache-control Etag, keepalive, cros, lastmodified)에 대해 설명해 보시오. 특히 cache 장점과 주의점을 말해보
+>
+>1. HTTP는 1번의 요청에 대해 1번의 응답을 하게 설계 되었습니다. 이런경우 여러 자원을 요청할 경우 여러 번 연결을 끊었다 붙였다 해야해서 비효율적입니다. keep-alive는 지정된 시간 동안 연결을 끊지 않고 연결된 상태를 유지할 수 있도록 해줍니다. keep-alive의 time out 내 클라이언트가 재 요청하면 새로운 연결이 아닌 기존 연결된 것을 이용하게 됩니다.
 
 ### [fetch vs axios](https://hoorooroob.tistory.com/entry/React-React-Naive-TIPS-axios-%EC%99%80-fetch-%EC%96%B4%EB%96%A4-%EA%B2%83%EC%9D%84-%EC%82%AC%EC%9A%A9%ED%95%A0%EA%B9%8C)
 
