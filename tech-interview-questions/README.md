@@ -150,11 +150,26 @@ Node.js를 사용할 경우 좋은 효율성을 발휘할 수 있는 경우는 �
 > [참고 사이트](https://meetup.toast.com/posts/89)
 
 ![eventloop](/tech-interview-questions/image/eventloop.jpg)
-단일 스레드' 기반의 언어라는 말은 '자바스크립트 엔진이 단일 호출 스택을 사용한다'는 관점에서만 사실이다. 실제 자바스크립트가 구동되는 환경(브라우저, Node.js등)에서는 주로 여러 개의 스레드가 사용되며, 이러한 구동 환경이 단일 호출 스택을 사용하는 자바 스크립트 엔진과 상호 연동하기 위해 사용하는 장치가 바로 '이벤트 루프'인 것이다.
+
+event loop가 하는 일은 간단합니다. task queue의 첫번째 있는 작업을 call stack이 비워져있는지 확인한 뒤 작업을 call stack으로 보내는 역할을 합니다.
+사실 자바스크립트가 단일 스레드 기반의 언어라는 말은 '자바스크립트 엔진이 단일 호출 스택을 사용한다'는 관점에서만 사실입니다. 실제 자바스크립트가 구동되는 환경(브라우저, Node.js등)에서는 주로 여러 개의 스레드가 사용되며, 이러한 구동 환경이 단일 호출 스택을 사용하는 자바 스크립트 엔진과 상호 연동하기 위해 사용하는 장치가 바로 '이벤트 루프'인 것입니다.
 
 ### Garbage Collector에 대해서 설명하시오
 
 > [가비지 콜레션](https://engineering.huiseoul.com/,%EC%9E%90%EB%B0%94%EC%8A%A4%ED%81%AC%EB%A6%BD%ED%8A%B8%EB%8A%94-%EC%96%B4%EB%96%BB%EA%B2%8C-%EC%9E%91%EB%8F%99%ED%95%98%EB%8A%94%EA%B0%80-%EB%A9%94%EB%AA%A8%EB%A6%AC-%EA%B4%80%EB%A6%AC-4%EA%B0%80%EC%A7%80-%ED%9D%94%ED%95%9C-%EB%A9%94%EB%AA%A8%EB%A6%AC-%EB%88%84%EC%88%98-%EB%8C%80%EC%B2%98%EB%B2%95-5b0d217d788d),
+>가비지컬렉션을 대해 V8은 전통적인 마킹하고 쓸어버리기(mark-and-sweep)의 세대적 접근방법을 이용해 예전 세대를 제거합니다. 마킹 단계에서는 자바스크립트의 수행을 중단하게 되어있습니다. 가비지컬렉션 비용을 통제하고 그 수행을 좀 더 안정적으로 하기위해 V8은 점진적 마킹을 이용합니다. 힙 전체를 훑어서 가능한 모든 객체를 마킹하는 대신 힙의 일부만을 확인한 다음 정상적인 자바스크립트 실행을 계속합니다. 그 다음의 GC 수행은 바로 이전에 멈춘곳에서부터 계속됩니다. 이를 통해 일상적인 실행에는 매우 짧은 코드 중단만 일어납니다. 위에 언급한대로 쓸어버리기는 별도의 쓰레드에서 수행됩니다.
+
+자바스크립트에서는 메모리 할당과 반환이 자동으로 이루어 지는데, 이를 가비지콜렉션이라고 합니다. 가비지콜렉터의 알고리즘의 바탕은 참조(reference)횟수입니다. 객체는 만약 그것을 가리키는 참조가 하나도 없는 경우 가비지컬렉션 대상(garbage collectible)으로 간주됩니다. 대표적인 알고리즘으로는 Mark and Sweep입니다. 루트(일반적으로 전역변수)와 그 자식들을 검사해서 활성화 여부를 표시합니다.
+
+### 스택 스페이스 vs 힙영역
+
+![스택과힙영역](/tech-interview-questions/image/stackVSheap.png)
+
+스택 스페이스에서의 할당은 컴파일 시점에 결정이 되어 집니다. 이는 stack에 할당이 되고, FILO의 형태를 띕니다. 하지만 동적으로 할당되는 메모리 영역은 컴파일 단계에서는 할당할 수 없고 런타임 시점에 heap영역에 할당됩니다.
+
+### 메모리 누수란 무엇인가
+
+프로그램에서 사용했다가 더 이상 필요하지 않지만 아직 OS나 자유메모리 풀에 반환되지 않은 메모리 조각들을 말합니다.
 
 ### 함수 hoisting이란
 
@@ -172,7 +187,7 @@ add(3,5); //8 -------​ ② 호출하는 시점에 add라는 함수가 미리 �
 ```javascript
 add(3,5); // ReferenceError: add is not defined (크롬 개발자도구 테스트시)
 //함수 표현식 형태로 선언
-var add = function add(x,y){
+var add = function (x,y){
 return x+y;
 }
 add(3,5); //8
@@ -190,7 +205,7 @@ add(3,5); //8
 
 javascript의 function은 first-class citizen이기 때문에 함수형 프로그래밍이 가능하게 됩니다.
 
-### node.js 또는 비동기를 해봤다면, 동기 비동기의 차이에 대해 설명하시오. Sync에서 발생될 수 있는 문제, Async에서 발생 될 수 있는 문제
+### node.js 또는 비동기를 해봤다면, 동기 비동기의 차이에 대해 설명하시오. (Sync에서 발생될 수 있는 문제, Async에서 발생 될 수 있는 문제)
 
 > [Sync Async](https://meetup.toast.com/posts/89)
 
@@ -200,17 +215,42 @@ CPU가 쉬게 만드는 작업들을 blocking이라고 한고 생각하면 됩�
 
 > [arrow-function](https://nesoy.github.io/articles/2019-04/Javascript-Arrow-function)
 
-arrow function은 dynamic scope가 아닌 lexical scope의 this를 가지고 있습니다. 즉 function의 내부함수를 arrow function으로 작셩하면 this가 전역객체에 바인딩되지 않고, 자신을 감싸는 함수의 this에 바인딩 되는 것을 확인 할 수 있습니다. arrow함수가 아닌 inner 함수는 전역 객체를 this로 바인딩합니다.
+짧은 표기 법으로 가독성 향상의 이점이 있고, 생성자로 사용할 수 없다는 점이 기존 함수와 다른 점입니다. 또한 arrow function은 dynamic scope가 아닌 lexical scope의 this를 가지고 있습니다. 즉 function의 내부함수를 arrow function으로 작셩하면 this가 전역객체에 바인딩되지 않고, 자신을 감싸는 함수의 this에 바인딩 되는 것을 확인 할 수 있습니다. arrow함수가 아닌 inner 함수는 전역 객체를 this로 바인딩합니다.
+
+### dynamic scope vs lexical scope
+
+![lexical scope](/tech-interview-questions/image/lexicalscopejs.png)
+
+동적 스코프는 프로그램의 런타임 도중의 실행 컨텍스트나 호출 컨텍스트에 의해 결정되고, 렉시컬 스코프에서는 소스코드가 작성된 그 문맥에서 결정됩니다.
+
+### 바벨 언제 쓰는건지 하는 역할이 먼지 설명하시오
+
+바벨 (babel)은 ES6에서 ES5로 자바스크립트를 변환해주는 역할을 합니다
+
+### webpack에 대해서 설명하시오
+
+모듈 번들러란 여러개의 나누어져 있는 파일들을 하나의 파일로 만들어주는 라이브러리를 말합니다. 모듈 번들러 라이브러리는 웹팩(wepback), Parcel 등 있습니다. 모듈 번들러는 여러개의 자바스크립트 파일을 하나의 파일로 묶어서 한 번에 요청을 통해 가지고 올 수 있게 하고 최신 자바스크립트 문법을 브라우저에서 사용할 수 있게 해줍니다. 또한 모듈 번들러들은 자바스크립트 코드들을 압축하고 최적화 할 수 있기 때문에 로딩 속도를 높일 수 있습니다.
+
+### async/await vs promise
+
+> [자바스크립트의 Async/Await 가 Promises를 사라지게 만들 수 있는 6가지 이유](https://medium.com/@constell99/%EC%9E%90%EB%B0%94%EC%8A%A4%ED%81%AC%EB%A6%BD%ED%8A%B8%EC%9D%98-async-await-%EA%B0%80-promises%EB%A5%BC-%EC%82%AC%EB%9D%BC%EC%A7%80%EA%B2%8C-%EB%A7%8C%EB%93%A4-%EC%88%98-%EC%9E%88%EB%8A%94-6%EA%B0%80%EC%A7%80-%EC%9D%B4%EC%9C%A0-c5fe0add656c)
+
+asnyc/await 는 비동기 코드를 작성하는 새로운 방법입니다. 이전에는 비동기코드를 작성하기 위해 callback이나 promise를 사용해야 했습니다. promise보다 async/await가 더 나은점은다음과 같습니다.
+
+- 간결함과 깔끔함
+- 에러 핸들링:  promise 상에서 .catch 를 호출해야하며, 에러를 처리하는 코드는 중복될 것입니다. 하지만 async/await에서는 try catch를 적용할 수 있습니다.
+- 디버깅이 쉽습니다. :
+
+### 함수레벨scope vs 블록레벨 scope
+
+- 함수레벨 scope: var
+- 블록레벨 scope: const, let
 
 ### others
 
-- async/await vs promise
-- 함수레벨scope vs 블록레벨 scope
-- react life cycle
-- babel에 대해서 바벨 언제 쓰는건지 하는 역할이 먼지
-- webpack에 대해서
 - 절차형 프로그래밍과 함수형 프로그래밍의 장단점/ 특징 비교
 - this binding, call, apply에 대해서 설명하시오
+- react life cycle
 - 다중상속을 사용하지 않는 이유
 - React hooks
 - react Mobx
@@ -237,7 +277,25 @@ HTTP request는 위와 같이 method, path, protocol version 그리고 필요에
 
 ### RESTful API가 무엇인지 설명하시오
 
-REST(REpresentational State Transfer)란, "웹에 존재하는 모든 자원(이미지, 동영상, DB 자원)에 고유한 URI를 부여해 활용"하는 것으로 생각할 수 있습니다. 특히 REST는 HTTP protocol의 장점을 살릴 수 있는 네트워크 기반 아키텍처입니다. REST는 크게 HTTP verbs(CRUD), URIs(resource Name), HTTP response(representation. JSON)로 구성되어 있습니다. 따라서 RESTful API는 REST 특징을 지키면서 API를 제공하는 것을 의미합니다.
+REST(REpresentational State Transfer)란, "웹에 존재하는 모든 자원(이미지, 동영상, DB 자원)에 고유한 URI를 부여해 활용"하는 것으로 생각할 수 있습니다. 특히 REST는 HTTP protocol의 장점을 살릴 수 있는 네트워크 기반 아키텍처입니다. REST는 크게 행위(CRUD), 자원 (URI), 표현(HTTP response, representation, JSON)으로 구성되어 있습니다. 따라서 RESTful API는 REST 특징을 지키면서 API를 제공하는 것을 의미합니다. REST API특징은 다음과 같습니다.
+
+1) Uniform (유니폼 인터페이스)
+Uniform Interface는 URI로 지정한 리소스에 대한 조작을 통일되고 한정적인 인터페이스로 수행하는 아키텍처 스타일을 말합니다.
+
+2) Stateless (무상태성)
+REST는 무상태성 성격을 갖습니다. 다시 말해 작업을 위한 상태정보를 따로 저장하고 관리하지 않습니다. 세션 정보나 쿠키정보를 별도로 저장하고 관리하지 않기 때문에 API 서버는 들어오는 요청만을 단순히 처리하면 됩니다. 때문에 서비스의 자유도가 높아지고 서버에서 불필요한 정보를 관리하지 않음으로써 구현이 단순해집니다.
+
+3) Cacheable (캐시 가능)
+REST의 가장 큰 특징 중 하나는 HTTP라는 기존 웹표준을 그대로 사용하기 때문에, 웹에서 사용하는 기존 인프라를 그대로 활용이 가능합니다. 따라서 HTTP가 가진 캐싱 기능이 적용 가능합니다. HTTP 프로토콜 표준에서 사용하는 Last-Modified태그나 E-Tag를 이용하면 캐싱 구현이 가능합니다.
+
+4) Self-descriptiveness (자체 표현 구조)
+REST의 또 다른 큰 특징 중 하나는 REST API 메시지만 보고도 이를 쉽게 이해 할 수 있는 자체 표현 구조로 되어 있다는 것입니다.
+
+5) Client - Server 구조
+REST 서버는 API 제공, 클라이언트는 사용자 인증이나 컨텍스트(세션, 로그인 정보)등을 직접 관리하는 구조로 각각의 역할이 확실히 구분되기 때문에 클라이언트와 서버에서 개발해야 할 내용이 명확해지고 서로간 의존성이 줄어들게 됩니다.
+
+6) 계층형 구조
+REST 서버는 다중 계층으로 구성될 수 있으며 보안, 로드 밸런싱, 암호화 계층을 추가해 구조상의 유연성을 둘 수 있고 PROXY, 게이트웨이 같은 네트워크 기반의 중간매체를 사용할 수 있게 합니다.
 
 ```HTTP
     GET /members/1          (o)
