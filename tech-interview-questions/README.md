@@ -173,7 +173,7 @@ event loop가 하는 일은 간단합니다. task queue의 첫번째 있는 작�
 
 ### 함수 hoisting이란
 
-hoist 란 끌어올린다는 뜻입니다. 자바스크립트에서 변수나 함수의 선언의 유효범위는 hoist(끌어올려짐)되어서 코드의 맨 처음부터 시작하게 됩니다. 이경우 함수를 사용하기 전에 반드시 선언해야 한다는 규칙을 무시하게 되어 코드의 구조를 엉성하게 만들 수 있습니다. 따라서 함수선언문보다 함수표현식만을 사용할 것을 권고합니다.
+hoist 란 끌어올린다는 뜻입니다. 자바스크립트에서 변수나 함수의 선언의 유효범위는 hoist(끌어올려짐)되어서 코드의 맨 처음부터 시작하게 됩니다. 이경우 함수를 사용하기 전에 반드시 선언해야 한다는 규칙을 무시하게 되어 코드의 구조를 엉성하게 만들 수 있습니다. 따라서 함수선언문보다 함수표현식만을 사용할 것을 권고합니다. 함수 호이스팅이 발생하는 원인은 자바스크립트의 변수 생성과 초기화의 작업이 분리돼서 진행되기 때문입니다.
 
 ``` javascript
 add(3,5); //8 ------- ① 호출하는 시점에 add란 함수가 선언이 안되었는데 호출한다. 정상동작을 한다.
@@ -199,7 +199,7 @@ add(3,5); //8
 
 3가지의 조건을 충족하면 first class citizen이라고 합니다.
 
-- 변수나 데이타에 할당 할 수 있어야 합니다.
+- 변수나 배열의 요소, 객체의 프로퍼티 등에 할당 할 수 있어야 합니다.
 - 객체의 인자로 넘길 수 있어야 합니다.
 - 객체의 리턴값으로 리턴 할수 있어야 합니다.
 
@@ -231,6 +231,36 @@ CPU가 쉬게 만드는 작업들을 blocking이라고 한고 생각하면 됩�
 
 모듈 번들러란 여러개의 나누어져 있는 파일들을 하나의 파일로 만들어주는 라이브러리를 말합니다. 모듈 번들러 라이브러리는 웹팩(wepback), Parcel 등 있습니다. 모듈 번들러는 여러개의 자바스크립트 파일을 하나의 파일로 묶어서 한 번에 요청을 통해 가지고 올 수 있게 하고 최신 자바스크립트 문법을 브라우저에서 사용할 수 있게 해줍니다. 또한 모듈 번들러들은 자바스크립트 코드들을 압축하고 최적화 할 수 있기 때문에 로딩 속도를 높일 수 있습니다.
 
+### arguments 객체
+
+자바스크립트에서는 함수를 호출할 때 arguments객체가 함수 내부로 전달됩니다. arguments 객체는 함수 호출시 넘긴 인자들이 배열 형태로 저장됐지만 실제 배열이 아닌 유사 배열 객체 입니다. 실제 배열 메소드를 사용하기 위해서는 call, apply를 이용하여 명시적인 this 바인딩을 하면 됩니다.
+
+### 함수호출 패턴과 this 바인딩
+
+- 메서드 호출 : 해당 메서드를 호출한 객체로 바인딩
+- 함수 호출 : 전역 객체에 바인딩. 내부함수의 경우도 동일하다. 따라서 이를 해결하기 위해 부모 함수의 this를 that같은 변수에 저장하는 방법을 사용한다.
+- 생성자함수 : 새로 생성된 인스턴스 객체에 바인딩. 이후 this를 사용하여 동적으로 프로퍼티나 메서드를 생성한다.
+
+### prototype을 쓰는 이유
+
+프로토 타입의 의미는 객체가 생성될때마다 해당 객체의 메소드를 만들어 메모리에 할당을 해야 하는데 그렇게 하지않고 생성자의 프로토타입에  정의함으로서 다른 모든 객체들이 참조하여 사용할 수 있도록 하여 메모리를 효율적으로 사용할 수 있도록 하는 장점과 메소드의 재정의가 필요한 객체들은 상황에 맞게 자신만 사용가능한 메소드를 재정의 할수 있어 유지보수에도 많은 도움이 됩니다
+
+### Prototype Link와 Prototype Object
+
+prototype 속성은 함수만 가지고 있는 것과는 달리 __proto__속성은 모든 객체가 빠짐없이 가지고 있는 속성입니다.
+
+### prototype chain이 무엇인지 설명하시오
+
+![prototypeChain](/tech-interview-questions/image/prototypeChain.png)
+__proto__속성을 통해 상위 프로토타입과 연결되어있는 형태를 프로토타입 체인(Chain)이라고 합니다.
+
+### 즉시실행함수를 사용하는 이유를 설명하시오
+
+[즉시실행함수](https://beomy.tistory.com/9)
+
+- 초기화: 변수를 전역(global scope)으로 선언하는 것을 피하기 위해서 사용합니다. 플러그인이나 라이브러리 등을 만들 때 많이 사용됩니다.
+- 라이브러리 전역변수 충돌: 즉시 실행 함수를 사용하여 동일한 전역 변수를 사용하는 라이브러리의 충돌을 피할 수 있습니다.
+
 ### async/await vs promise
 
 > [자바스크립트의 Async/Await 가 Promises를 사라지게 만들 수 있는 6가지 이유](https://medium.com/@constell99/%EC%9E%90%EB%B0%94%EC%8A%A4%ED%81%AC%EB%A6%BD%ED%8A%B8%EC%9D%98-async-await-%EA%B0%80-promises%EB%A5%BC-%EC%82%AC%EB%9D%BC%EC%A7%80%EA%B2%8C-%EB%A7%8C%EB%93%A4-%EC%88%98-%EC%9E%88%EB%8A%94-6%EA%B0%80%EC%A7%80-%EC%9D%B4%EC%9C%A0-c5fe0add656c)
@@ -241,20 +271,65 @@ asnyc/await 는 비동기 코드를 작성하는 새로운 방법입니다. 이�
 - 에러 핸들링:  promise 상에서 .catch 를 호출해야하며, 에러를 처리하는 코드는 중복될 것입니다. 하지만 async/await에서는 try catch를 적용할 수 있습니다.
 - 디버깅이 쉽습니다. :
 
+### this binding, call, apply에 대해서 설명하시오
+
+- call,apply은 실행되는 함수의 this값을 원하는 객체로 바꿔서 실행할 수 있게 해준다.
+- bind는 실행되는 함수의 this값을 원하는 객체로 고정시키는 새로운 함수를 만들어낸다.
+
+```javascript
+const nono = {
+    first: 20,
+    second: 30
+}
+function sum(prefix) {
+    return prefix + (this.first + this.second);
+}
+console.log(sum.call(nono, '=>'));
+const bindSum = sum.bind(nono, ':');
+console.log(bindSum());
+```
+
+> =>50</br>
+:50
+
 ### 함수레벨scope vs 블록레벨 scope
 
 - 함수레벨 scope: var
 - 블록레벨 scope: const, let
 
+### 절차형 프로그래밍과 함수형 프로그래밍의 장단점/ 특징 비교
+
+함수형 프로그래밍은 높은 수준의 모듈화를 가능케 하는 매우 효율적인 프로그래밍 방법입니다. 자바스크립트는 일급객체로서의 함수특성과 클로저를 활용하여 이를 가능케 합니다. 하지만 가독성을 떨어뜨리는 단점도 있습니다.
+
+### typescript에 대해서 설명해 보시오
+
+자바스크립트는 굉장히 유연한 언어입니다. 하지만 느슨한 타입체크로 컴파일타임에서의 디버깅을 어렵게 합니다.
+
+### 자바스크립트에서 객체 생성하는 방법 3가지에 대해서 말해보시오
+
+- 내장생성자함수 Object()
+- 객체 리터럴
+- 생성자함수
+
+### call by value vs call by reference
+
+기본타입의 경우는 call by value, 객체와 같은 참조 타입의 경우 call by reference이다.
+
+### 즉시실행함수를 사용하는 이유
+
+### 유사배열객체
+
+length프로퍼티를 가진 객체를 유사배열객체라고 합니다. 유사배열객체는 apply()메서드를 사용하면 배열 메서드를 사용하는게 가능합니다.
+
+### [fetch vs axios](https://hoorooroob.tistory.com/entry/React-React-Naive-TIPS-axios-%EC%99%80-fetch-%EC%96%B4%EB%96%A4-%EA%B2%83%EC%9D%84-%EC%82%AC%EC%9A%A9%ED%95%A0%EA%B9%8C)
+
 ### others
 
-- 절차형 프로그래밍과 함수형 프로그래밍의 장단점/ 특징 비교
-- this binding, call, apply에 대해서 설명하시오
 - react life cycle
 - 다중상속을 사용하지 않는 이유
 - React hooks
 - react Mobx
-- typescript에 대해서 설명해 보시오
+
 - ORM(sequelize)이란
 - javascript array reducer callback 함수 구현
 
@@ -381,8 +456,6 @@ URI(Uniform Resource Identifier) 는 인터넷 상의 자원을 식별하는 문
 - HTTP Header(cache-control Etag, keepalive, cros, lastmodified)에 대해 설명해 보시오. 특히 cache 장점과 주의점을 말해보
 >
 >1. HTTP는 1번의 요청에 대해 1번의 응답을 하게 설계 되었습니다. 이런경우 여러 자원을 요청할 경우 여러 번 연결을 끊었다 붙였다 해야해서 비효율적입니다. keep-alive는 지정된 시간 동안 연결을 끊지 않고 연결된 상태를 유지할 수 있도록 해줍니다. keep-alive의 time out 내 클라이언트가 재 요청하면 새로운 연결이 아닌 기존 연결된 것을 이용하게 됩니다.
-
-### [fetch vs axios](https://hoorooroob.tistory.com/entry/React-React-Naive-TIPS-axios-%EC%99%80-fetch-%EC%96%B4%EB%96%A4-%EA%B2%83%EC%9D%84-%EC%82%AC%EC%9A%A9%ED%95%A0%EA%B9%8C)
 
 ## network
 
