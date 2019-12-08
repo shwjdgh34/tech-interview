@@ -1,14 +1,20 @@
-var initText;
-
-function init(number) {
-    var textList = ["is Odd Text", "is Even Text"];
-    if (number % 2 == 0) {
-        initText = textList[1];
-    } else {
-        initText = textList[0];
-    }
-};
-
-init(1);
-console.log(initText);
-console.log(textList);
+(async function main() {
+    console.log("1");
+    setTimeout(() => {
+        console.log("2");
+        debugger
+    }, 1000);
+    console.log("3");
+    await new Promise((resolve, reject) => {
+        setTimeout(() => {
+            console.log("4");
+            debugger
+            resolve();
+        }, 900);
+    });
+    console.log("5");
+})()
+console.log("6");
+while (1) {
+    console.log("nono");
+}

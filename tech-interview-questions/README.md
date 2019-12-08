@@ -175,6 +175,8 @@ event loop가 하는 일은 간단합니다. task queue의 첫번째 있는 작�
 
 hoist 란 끌어올린다는 뜻입니다. 자바스크립트에서 변수나 함수의 선언의 유효범위는 hoist(끌어올려짐)되어서 코드의 맨 처음부터 시작하게 됩니다. 이경우 함수를 사용하기 전에 반드시 선언해야 한다는 규칙을 무시하게 되어 코드의 구조를 엉성하게 만들 수 있습니다. 따라서 함수선언문보다 함수표현식만을 사용할 것을 권고합니다. 함수 호이스팅이 발생하는 원인은 자바스크립트의 변수 생성과 초기화의 작업이 분리돼서 진행되기 때문입니다.
 
+> 실행컨텍스트에 관점에서 Variable Instantiation은 Variable Object에 프로퍼티와 값을 추가하는 것을 의미한다. Variable Instantiation 과정에서 대상 코드 내의 함수 선언을 대상으로 함수명이 Variable Object의 프로퍼티로, 생성된 함수 객체가 값으로 설정된다.(함수 호이스팅). 대상 코드 내의 변수 선언을 대상으로 변수명이 Variable Object의 프로퍼티로, undefined가 값으로 설정된다.(변수 호이스팅)
+
 ``` javascript
 add(3,5); //8 ------- ① 호출하는 시점에 add란 함수가 선언이 안되었는데 호출한다. 정상동작을 한다.
 //함수 선언문 형태로 선언
@@ -240,6 +242,7 @@ CPU가 쉬게 만드는 작업들을 blocking이라고 한고 생각하면 됩�
 - 메서드 호출 : 해당 메서드를 호출한 객체로 바인딩
 - 함수 호출 : 전역 객체에 바인딩. 내부함수의 경우도 동일하다. 따라서 이를 해결하기 위해 부모 함수의 this를 that같은 변수에 저장하는 방법을 사용한다.
 - 생성자함수 : 새로 생성된 인스턴스 객체에 바인딩. 이후 this를 사용하여 동적으로 프로퍼티나 메서드를 생성한다.
+- call과 apply 메서드를 이용한 명시적인 this 바인딩:
 
 ### prototype을 쓰는 이유
 
@@ -247,12 +250,13 @@ CPU가 쉬게 만드는 작업들을 blocking이라고 한고 생각하면 됩�
 
 ### Prototype Link와 Prototype Object
 
-prototype 속성은 함수만 가지고 있는 것과는 달리 __proto__속성은 모든 객체가 빠짐없이 가지고 있는 속성입니다.
+![prototype](/tech-interview-questions/image/prototype.png)
+prototype 속성은 함수만 가지고 있는 것과는 달리 __proto__속성은 모든 객체가 빠짐없이 가지고 있는 속성입니다. prototype property는 함수의 입장에서 자신과 링크된 prototype 객체를 가리키고 있으며, 이에 반해 [[Prototype]]링크는 객체의 입장에서 자신의 부모 객체인 prototype객체를 내부의 숨겨진 링크로 가리키고 있습니다. 결국 객체를 생성하는 건 생성자 함수의 역할이지만, 생성된 객체의 실제 부모역할을 하는 건 생성자 자신이 아닌 생성자의 prototype property가 가리키는 프로토타입 객체입니다.
 
 ### prototype chain이 무엇인지 설명하시오
 
 ![prototypeChain](/tech-interview-questions/image/prototypeChain.png)
-__proto__속성을 통해 상위 프로토타입과 연결되어있는 형태를 프로토타입 체인(Chain)이라고 합니다.
+[[Prototype]] Link, __proto__속성을 통해 상위 프로토타입과 연결되어있는 형태를 프로토타입 체인(Chain)이라고 합니다.
 
 ### 즉시실행함수를 사용하는 이유를 설명하시오
 
@@ -316,6 +320,21 @@ console.log(bindSum());
 기본타입의 경우는 call by value, 객체와 같은 참조 타입의 경우 call by reference이다.
 
 ### 즉시실행함수를 사용하는 이유
+
+### 실행 컨텍스트
+
+[execution-context](https://poiemaweb.com/js-execution-context)
+
+![execution-context](/tech-interview-questions/image/execution-context.png)
+
+실행 컨텍스트는 실행 가능한 코드가 실행되기 위해 필요한 환경이라고 할 수 있습니다. 물리적으로는 객체의 형태를 가지며 아래의 3가지 프로퍼티를 소유합니다.
+
+- Scope Chain
+- Variable Object
+- this value
+
+> 스코프 체인은 식별자 중에서 객체(전역 객체 제외)의 프로퍼티가 아닌 식별자, 즉 변수를 검색하는 메커니즘이다.
+식별자 중에서 변수가 아닌 객체의 프로퍼티(물론 메소드도 포함된다)를 검색하는 메커니즘은 프로토타입 체인(Prototype Chain)이다.
 
 ### 유사배열객체
 
