@@ -15,6 +15,3 @@
     console.log("5");
 })()
 console.log("6");
-while (1) {
-    console.log("nono");
-}
